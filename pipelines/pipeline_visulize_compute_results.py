@@ -78,7 +78,10 @@ with elapsed_timer('Creating datasets'):
     )
 
 NSAMPLES = 4
-predictDataset(ds_test, nsamples_to_plot=NSAMPLES, nn_model=nn_unet_vgg16)
+predictDataset(ds_test, nsamples_to_plot=NSAMPLES, nn_model=nn_unet_vgg16,
+               report_plot_aucroc = False,
+               report_plot_cmat = False,
+               report_print = False)
 
 images_Z = list(df['PATH_TO_ORIGINAL_IMAGE'][:3].values)
 
