@@ -70,7 +70,7 @@ if __name__ == '__main__':
     # save to csv: 
     hist_csv_file = 'history.csv'
     with open(hist_csv_file, mode='w') as f:
-        hist_df.to_csv(f)      
+        df_history.to_csv(f)      
 
 
     # predict on test data set
