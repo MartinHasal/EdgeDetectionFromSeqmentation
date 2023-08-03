@@ -62,12 +62,16 @@ if __name__ == '__main__':
                                          loss_type=kwargs['loss_type'],
                                          decay=kwargs['lr_decay_type'])
 
-    # plot training history
+    # convert the history.history dict to a pandas DataFrame:
     df_history = pd.DataFrame(history.history)
+    # plot training history
     plotTrainingHistory(df_history)
     
-    with open('/trainHistoryDict', 'wb') as file_pi:
-        pickle.dump(history.history, file_pi)
+    # save to csv: 
+    hist_csv_file = 'history.csv'
+    with open(hist_csv_file, mode='w') as f:
+        hist_df.to_csv(f)      
+
 
     # predict on test data set
     NSAMPLES = 4
