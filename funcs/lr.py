@@ -19,7 +19,7 @@ def ScheduleWarmupExponentialDecay(nepochs: int, info: bool = False):
     LR_START = 0.00001
     LR_MAX = 0.0002
     LR_MIN = 0.00001
-    LR_RAMPUP_EPOCHS = 3
+    LR_RAMPUP_EPOCHS = 5
     LR_SUSTAIN_EPOCHS = 1
     LR_EXP_DECAY = (nepochs - (LR_RAMPUP_EPOCHS + LR_SUSTAIN_EPOCHS)) / nepochs
 
