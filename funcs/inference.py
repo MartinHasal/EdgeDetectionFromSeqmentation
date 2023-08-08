@@ -120,30 +120,39 @@ def predictDataset(ds,
         with_report=report_print
     )
 
+
 def predictDatasetEdges(ds,
                         nsamples_to_plot: int,
                         nn_model,
                         report_plot_aucroc: bool = True,
                         report_plot_cmat: bool = True,
-                        report_print: bool = True) -> None:
+                        report_print: bool = True,
+                        seed: int = None) -> None:
+
+    import random
 
     from models.utils import report
 
     y_prob, y_label, y_edges = predict(nn_model, ds, edges=True)
     y_edges = tf.math.reduce_max(y_edges, axis=-1)
 
-    fig, axes = plt.subplots(4, 5, figsize=(8, 8))
-    row = 0
-    for idx, ds_sample in enumerate(ds.take(nsamples_to_plot)):
-        if idx < nsamples_to_plot - 4:
-            continue
+    lst_ds = list(ds.as_numpy_iterator())
 
-        imshow(ds_sample[0].numpy(), ax=axes[row][0], title='Input image')
-        maskshow(ds_sample[1].numpy(), ax=axes[row][1], title='Mask (true)')
-        maskshow(y_prob[idx], ax=axes[row][2], title='Mask (pred. prob.f)')
-        maskshow(y_label[idx], ax=axes[row][3], title='Mask (pred. label)')
-        maskshow(y_edges[idx], ax=axes[row][4], title='Edges')
-        row +=1
+    if seed is not None: random.seed(seed)
+    rnd_idx = random.sample(range(0, len(lst_ds)), nsamples_to_plot)
+
+    fig, axes = plt.subplots(nsamples_to_plot, 5, figsize=(8, 8))
+    for idx_axis, idx_sample in enumerate(rnd_idx):
+
+        ds_sample = lst_ds[idx_sample][0]
+        ds_label = lst_ds[idx_sample][1]
+
+        imshow(ds_sample, ax=axes[idx_axis][0], title='Input image')
+        maskshow(ds_label, ax=axes[idx_axis][1], title='Mask (true)')
+        maskshow(y_prob[idx_sample], ax=axes[idx_axis][2], title='Mask (pred. prob.f)')
+        maskshow(y_label[idx_sample], ax=axes[idx_axis][3], title='Mask (pred. label)')
+        maskshow(y_edges[idx_sample], ax=axes[idx_axis][4], title='Edges')
+
     fig.suptitle('Predictions on test data set')
     fig.tight_layout()
     plt.show()
