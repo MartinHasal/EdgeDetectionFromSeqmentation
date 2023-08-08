@@ -132,14 +132,18 @@ def predictDatasetEdges(ds,
     y_prob, y_label, y_edges = predict(nn_model, ds, edges=True)
     y_edges = tf.math.reduce_max(y_edges, axis=-1)
 
-    fig, axes = plt.subplots(nsamples_to_plot, 5, figsize=(8, 8))
+    fig, axes = plt.subplots(4, 5, figsize=(8, 8))
+    row = 0
     for idx, ds_sample in enumerate(ds.take(nsamples_to_plot)):
-        print(ds_sample[0].numpy().shape)
-        imshow(ds_sample[0].numpy(), ax=axes[idx][0], title='Input image')
-        maskshow(ds_sample[1].numpy(), ax=axes[idx][1], title='Mask (true)')
-        maskshow(y_prob[idx], ax=axes[idx][2], title='Mask (pred. prob.f)')
-        maskshow(y_label[idx], ax=axes[idx][3], title='Mask (pred. label)')
-        maskshow(y_edges[idx], ax=axes[idx][4], title='Edges')
+        if idx < nsamples_to_plot - 4:
+            continue
+
+        imshow(ds_sample[0].numpy(), ax=axes[row][0], title='Input image')
+        maskshow(ds_sample[1].numpy(), ax=axes[row][1], title='Mask (true)')
+        maskshow(y_prob[idx], ax=axes[row][2], title='Mask (pred. prob.f)')
+        maskshow(y_label[idx], ax=axes[row][3], title='Mask (pred. label)')
+        maskshow(y_edges[idx], ax=axes[row][4], title='Edges')
+        row +=1
     fig.suptitle('Predictions on test data set')
     fig.tight_layout()
     plt.show()
