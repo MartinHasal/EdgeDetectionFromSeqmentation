@@ -41,7 +41,7 @@ def maskshow(mask: np.ndarray, ax=None, title: str = None, figsize: tuple = None
 
 def plotTrainingHistory(history: pd.DataFrame) -> None:
 
-    fig, ax = plt.subplots(1, 2, figsize=(20, 4))
+    fig, ax = plt.subplots(1, 2, figsize=(20, 4), layout='constrained')
 
     # plot training and validation loss
     sns.lineplot(x=history.index + 1, y='loss', data=history, ax=ax[0])
@@ -51,6 +51,7 @@ def plotTrainingHistory(history: pd.DataFrame) -> None:
     fig1.set_ylabel('Loss (log scale)', fontsize=18)
     fig1.tick_params(axis='both', which='major', labelsize=14)
     fig1.set(yscale='log')
+    ax[0].legend(labels=['Training', 'Validation'], loc='upper right',  prop={'size': 14})
 
     # plot training and validation IoU
     sns.lineplot(x=history.index + 1, y='mean_io_u', data=history, ax=ax[1])
@@ -59,8 +60,8 @@ def plotTrainingHistory(history: pd.DataFrame) -> None:
     fig2.set_xlabel('#epoch', fontsize=18)
     fig2.set_ylabel('Mean IoU', fontsize=18)
     fig2.tick_params(axis='both', which='major', labelsize=14)
+    ax[1].legend(labels=['Training', 'Validation'], loc='lower right',  prop={'size': 14})    
 
-    plt.legend(labels=['Training', 'Validation'], loc='lower center', bbox_to_anchor=(-0.1, -0.4), prop={'size': 14})
     plt.show()
 
 
