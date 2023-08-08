@@ -15,7 +15,7 @@ from utils.roc import AucRoc
 from utils.smooth_blender_predicitions import predict_img_with_smooth_windowing
 
 
-def predict(nn_model: KerasFunctional, ds: tf.data.Dataset, batch_size: int = 32) -> [np.ndarray, np.ndarray]:
+def predict(nn_model: KerasFunctional, ds: tf.data.Dataset, batch_size: int = 32, edges = False) -> [np.ndarray, np.ndarray]:
 
     ds_batches = (
         ds.cache()
@@ -25,12 +25,21 @@ def predict(nn_model: KerasFunctional, ds: tf.data.Dataset, batch_size: int = 32
 
     y_prob = nn_model.predict(ds_batches)
     y_label = tf.math.argmax(y_prob, axis=-1)
+    
+    if edges == True:
+        y_edges = y_prob        
+        # convert to P(X | y = 1)
+        y_prob = tf.math.reduce_max(y_prob, axis=-1)
+        y_prob = np.abs(np.ones(y_label.shape, dtype=np.float32) - tf.cast(y_label, dtype=np.float32) - y_prob)
 
-    # convert to P(X | y = 1)
-    y_prob = tf.math.reduce_max(y_prob, axis=-1)
-    y_prob = np.abs(np.ones(y_label.shape, dtype=np.float32) - tf.cast(y_label, dtype=np.float32) - y_prob)
+        return y_prob, y_label.numpy(), y_edges
 
-    return y_prob, y_label.numpy()
+    else:
+        # convert to P(X | y = 1)
+        y_prob = tf.math.reduce_max(y_prob, axis=-1)
+        y_prob = np.abs(np.ones(y_label.shape, dtype=np.float32) - tf.cast(y_label, dtype=np.float32) - y_prob)
+    
+        return y_prob, y_label.numpy()
 
 
 def predictImg(nn_model: KerasFunctional, img: np.ndarray, patch_size: int = 128) -> (np.ndarray, np.ndarray):
@@ -88,6 +97,7 @@ def predictDataset(ds,
     from models.utils import report
 
     y_prob, y_label = predict(nn_model, ds)
+    
 
     fig, axes = plt.subplots(nsamples_to_plot, 4, figsize=(8, 8))
     for idx, ds_sample in enumerate(ds.take(nsamples_to_plot)):
@@ -105,9 +115,44 @@ def predictDataset(ds,
     report.show_report(
         test=y_true,
         labels_pred=y_label,
-        with_aucroc=True,
-        with_cmat=True,
-        with_report=True
+        with_aucroc=report_plot_aucroc,
+        with_cmat=report_plot_cmat,
+        with_report=report_print
+    )
+
+def predictDatasetEdges(ds,
+                        nsamples_to_plot: int,
+                        nn_model,
+                        report_plot_aucroc: bool = True,
+                        report_plot_cmat: bool = True,
+                        report_print: bool = True) -> None:
+
+    from models.utils import report
+
+    y_prob, y_label, y_edges = predict(nn_model, ds, edges=True)
+    y_edges = tf.math.reduce_max(y_edges, axis=-1)
+
+    fig, axes = plt.subplots(nsamples_to_plot, 5, figsize=(8, 8))
+    for idx, ds_sample in enumerate(ds.take(nsamples_to_plot)):
+        print(ds_sample[0].numpy().shape)
+        imshow(ds_sample[0].numpy(), ax=axes[idx][0], title='Input image')
+        maskshow(ds_sample[1].numpy(), ax=axes[idx][1], title='Mask (true)')
+        maskshow(y_prob[idx], ax=axes[idx][2], title='Mask (pred. prob.f)')
+        maskshow(y_label[idx], ax=axes[idx][3], title='Mask (pred. label)')
+        maskshow(y_edges[idx], ax=axes[idx][4], title='Edges')
+    fig.suptitle('Predictions on test data set')
+    fig.tight_layout()
+    plt.show()
+
+    # get ground true
+    y_true = np.concatenate([y for _, y in ds], axis=0).reshape(-1).astype(np.float32)
+
+    report.show_report(
+        test=y_true,
+        labels_pred=y_label,
+        with_aucroc=report_plot_aucroc,
+        with_cmat=report_plot_cmat,
+        with_report=report_print
     )
 
 
