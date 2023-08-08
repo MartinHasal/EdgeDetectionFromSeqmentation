@@ -51,7 +51,11 @@ NCLASSES = 2
 
 nn_unet_vgg16 = buildModel(IMG_SHAPE, NCLASSES, trainable_encoder=True)
 
-nn_unet_vgg16.load_weights('.\\model\\unet_vgg16_best\\variables\\variables')
+# HRF
+#nn_unet_vgg16.load_weights('.\\model\\unet_vgg16_best\\variables\\variables')
+
+# no HRF
+nn_unet_vgg16.load_weights('.\\model\\unet_vgg16_edges\\variables\\variables')
 
 #localhost_load_option = tf.saved_model.LoadOptions(experimental_io_device="/job:localhost")
 #nn_unet_vgg16 = tf.saved_model.load('model/unet_vgg16', options=localhost_load_option)
@@ -84,6 +88,11 @@ predictDataset(ds_test, nsamples_to_plot=NSAMPLES, nn_model=nn_unet_vgg16,
                report_print = False)
 
 images_Z = list(df['PATH_TO_ORIGINAL_IMAGE'][:3].values)
+
+
+
+
+
 
 
 def blending_cleaning(path: str, cleaning: float = 0, probt: float = 0.5, plot: bool = True) -> None:
