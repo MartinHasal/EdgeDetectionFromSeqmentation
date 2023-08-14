@@ -64,6 +64,7 @@ class AucRoc(object):
                 color='darkorange',
                 label='AUC ROC = {0:.4f}'.format(self._auc),
             )
+            print('AUC ROC = {0:.4f}'.format(self._auc))
             plt.plot([0, 1], [0, 1], color='navy', linestyle='--')
 
             plt.xlim([0.0, 1.0])
@@ -85,6 +86,7 @@ class AucRoc(object):
                 color='darkorange',
                 label='AUC ROC = {0:.4f}'.format(self._auc),
             )
+            print('AUC ROC = {0:.4f}'.format(self._auc))
             ax.plot([0, 1], [0, 1], color='navy', linestyle='--')
 
             ax.set_xlim([0.0, 1.0])
