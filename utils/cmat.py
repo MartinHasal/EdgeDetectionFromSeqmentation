@@ -35,12 +35,13 @@ class ConfusionMatrix(object):
              ax=None) -> None:
 
         self.__computeConfusionMatrix()
-
+        print(self._cm)
+        
         disp = ConfusionMatrixDisplay(
             confusion_matrix=self._cm,
             display_labels=self._labels,
         )
-
+        
         disp.plot(cmap='BuPu', ax=ax)
         plt.title(title)
 
